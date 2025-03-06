@@ -25,6 +25,7 @@ public class Setup {
 
     @BeforeAll
     public static void setUp() {
+        //Let's see if it works.
         // Configure ChromeOptions for better compatibility in CI/CD environments
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless"); // Run in headless mode (no GUI)
