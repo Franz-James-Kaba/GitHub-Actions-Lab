@@ -41,4 +41,27 @@ jobs:
         to: ${{ secrets.RECIPIENT_EMAIL }}
         from: "GitHub Actions"
 
+    - name: Send Email on Success
+      if: success()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: ${{secrets.SMTP_SERVER}}
+        username: ${{secrets.SMTP_USERNAME}}
+        password: ${{secrets.SMTP_PASSWORD}}
+        subject: "Selenium tests executed successfully"
+        body: |
+          The Selenium tests executed successfully.
+          Below are the test results and logs:
+
+          Test Results:
+          ${{ job.status }}
+
+          Execution Logs:
+          ${{steps.run-tests.outputs.stdout || 'Logs not available'}}
+
+          Check the full details in the GitHub Actions run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        to: "${{ secrets.TRAINER_EMAIL }},${{ secrets.MENTOR_EMAIL }},${{ secrets.RECIPIENT_EMAIL }}"
+        from: "GitHub Actions"
+          
+
 
