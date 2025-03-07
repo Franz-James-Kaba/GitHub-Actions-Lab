@@ -27,7 +27,13 @@ jobs:
       run: mvn -version
 
     - name: Run Selenium Tests
-      run: mvn test
+      id: run-tests
+      run: |
+        mvn test | tee test_output.log
+
+    - name: Store Logs as an Output
+      id: capture-logs
+      run: echo "logs=$(cat test_output.log | base64 -w 0)" >> $GITHUB_ENV  
 
     - name: Send Email on Failure
       if: failure()
@@ -45,23 +51,21 @@ jobs:
       if: success()
       uses: dawidd6/action-send-mail@v3
       with:
-        server_address: ${{secrets.SMTP_SERVER}}
-        username: ${{secrets.SMTP_USERNAME}}
-        password: ${{secrets.SMTP_PASSWORD}}
-        subject: "Selenium tests executed successfully"
+        server_address: ${{ secrets.SMTP_SERVER }}
+        username: ${{ secrets.SMTP_USERNAME }}
+        password: ${{ secrets.SMTP_PASSWORD }}
+        subject: "Selenium Test Execution Success"
         body: |
           The Selenium tests executed successfully.
-          Below are the test results and logs:
-
-          Test Results:
-          ${{ job.status }}
+      
+          Test Results: ${{ job.status }}
 
           Execution Logs:
-          ${{steps.run-tests.outputs.stdout || 'Logs not available'}}
+          $(echo "${{ env.logs }}" | base64 --decode)
 
-          Check the full details in the GitHub Actions run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        to: "${{ secrets.TRAINER_EMAIL }},${{ secrets.MENTOR_EMAIL }},${{ secrets.RECIPIENT_EMAIL }}"
-        from: "GitHub Actions"
+          Check full details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          to: "${{ secrets.TRAINER_EMAIL }},${{ secrets.MENTOR_EMAIL }},${{ secrets.RECIPIENT_EMAIL }}"
+          from: "GitHub Actions"
           
 
 
