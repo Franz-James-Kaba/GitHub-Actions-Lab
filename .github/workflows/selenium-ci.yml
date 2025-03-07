@@ -72,5 +72,5 @@ jobs:
 
           🔗 [Run Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
-        to: "${{ join(secrets.TRAINER_EMAIL, secrets.MENTOR_EMAIL, secrets.RECIPIENT_EMAIL) }}"
+        to: "${{ secrets.TRAINER_EMAIL }},${{ secrets.MENTOR_EMAIL }},${{ secrets.RECIPIENT_EMAIL }}"
         from: "GitHub Actions"
