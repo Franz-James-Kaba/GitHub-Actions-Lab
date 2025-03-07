@@ -31,9 +31,11 @@ jobs:
       run: |
         mvn test | tee test_output.log
 
-    - name: Store Logs as an Output
-      id: capture-logs
-      run: echo "logs=$(cat test_output.log | base64 -w 0)" >> $GITHUB_ENV  
+    - name: Upload Test Logs
+      uses: actions/upload-artifact@v3
+      with:
+        name: selenium-test-logs
+        path: test_output.log
 
     - name: Send Email on Failure
       if: failure()
@@ -43,7 +45,12 @@ jobs:
         username: ${{ secrets.SMTP_USERNAME }}
         password: ${{ secrets.SMTP_PASSWORD }}
         subject: "Selenium Test Failure"
-        body: "Check logs for details."
+        body: |
+          The Selenium tests **FAILED**.
+
+          Check the logs for details.
+
+          Full details: [Run Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
         to: ${{ secrets.RECIPIENT_EMAIL }}
         from: "GitHub Actions"
 
@@ -56,16 +63,14 @@ jobs:
         password: ${{ secrets.SMTP_PASSWORD }}
         subject: "Selenium Test Execution Success"
         body: |
-          The Selenium tests executed successfully.
-      
-          Test Results: ${{ job.status }}
+          ✅ The Selenium tests executed successfully!
 
-          Execution Logs:
-          $(echo "${{ env.logs }}" | base64 --decode)
+          **Test Results:** ${{ job.status }}
 
-          Check full details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          to: "${{ secrets.TRAINER_EMAIL }},${{ secrets.MENTOR_EMAIL }},${{ secrets.RECIPIENT_EMAIL }}"
-          from: "GitHub Actions"
-          
+          **Execution Logs:**  
+          Logs have been uploaded as an artifact.  
 
+          🔗 [Run Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
+        to: "${{ join(secrets.TRAINER_EMAIL, secrets.MENTOR_EMAIL, secrets.RECIPIENT_EMAIL) }}"
+        from: "GitHub Actions"
