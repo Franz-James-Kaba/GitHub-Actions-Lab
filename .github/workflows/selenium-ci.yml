@@ -74,3 +74,11 @@ jobs:
 
         to: "${{ secrets.TRAINER_EMAIL }},${{ secrets.MENTOR_EMAIL }},${{ secrets.RECIPIENT_EMAIL }}"
         from: "GitHub Actions"
+
+    - name: Send Slack Notification
+      if: always()
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_MESSAGE: "Selenium tests completed. Check results."
+        SLACK_TITLE: "Test Status"
